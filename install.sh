@@ -32,6 +32,7 @@ echo -e "│     \e[2;37m       by distillium            \e[1;35m│"
 echo -e "╰─────────────────────────────────────╯\e[0m"
 sleep 2
 
+cd $HOME
 info "Начинаем установку и настройку Cloudflare WARP"
 echo ""
 
