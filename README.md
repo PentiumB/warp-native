@@ -32,7 +32,9 @@ curl -sL https://raw.githubusercontent.com/distillium/warp-native/main/install.s
 {
   "tag": "warp-out",
   "protocol": "freedom",
-  "settings": {},
+  "settings": {
+    "domainStrategy": "UseIP"
+  },
   "streamSettings": {
     "sockopt": {
       "interface": "warp",
