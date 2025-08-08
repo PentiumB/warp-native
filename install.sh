@@ -21,6 +21,18 @@ function error_exit {
     exit 1
 }
 
+RESTORE_DNS_REQUIRED=false
+
+function restore_dns {
+    if [[ "$RESTORE_DNS_REQUIRED" == true && -f /etc/resolv.conf.backup ]]; then
+        cp /etc/resolv.conf.backup /etc/resolv.conf
+        ok "DNS возвращены к заводскому состоянию (восстановлены из резервной копии)"
+        RESTORE_DNS_REQUIRED=false
+    fi
+}
+
+trap restore_dns EXIT
+
 if [[ $EUID -ne 0 ]]; then
     fail "Этот скрипт должен быть запущен от имени root"
     exit 1
@@ -44,6 +56,7 @@ echo ""
 
 info "2. Назначение временных DNS (1.1.1.1 + 8.8.8.8), чтобы гарантировать установку и регистрацию wgcf..."
 cp /etc/resolv.conf /etc/resolv.conf.backup
+RESTORE_DNS_REQUIRED=true
 echo -e "nameserver 1.1.1.1\nnameserver 8.8.8.8" > /etc/resolv.conf || error_exit "Не удалось настроить временные DNS-серверы."
 ok "Временные DNS-серверы установлены."
 echo ""
@@ -67,7 +80,28 @@ ok "wgcf $WGCF_VERSION установлен в /usr/local/bin/wgcf."
 echo ""
 
 info "4. Регистрация и генерация конфигурации wgcf..."
-yes | wgcf register &>/dev/null || error_exit "Ошибка при регистрации wgcf."
+
+if [[ -f wgcf-account.toml ]]; then
+    info "Файл wgcf-account.toml уже существует. Пропускаем регистрацию."
+else
+    info "Выполняем регистрацию wgcf..."
+    
+    output=$(yes | wgcf register 2>&1)
+    ret=$?
+
+    if [[ $ret -ne 0 ]]; then
+        warn "wgcf register завершился с кодом $ret."
+        warn "Возможна ошибка 500 от Cloudflare."
+        info "Это известное поведение: продолжаем попытку регистрации."
+    fi
+
+    if [[ ! -f wgcf-account.toml ]]; then
+        error_exit "Регистрация не удалась: файл wgcf-account.toml не создан."
+    fi
+
+    info "Файл wgcf-account.toml успешно создан. Продолжаем установку."
+fi
+
 wgcf generate &>/dev/null || error_exit "Ошибка при генерации конфигурации wgcf."
 ok "Конфигурация wgcf успешно сгенерирована."
 echo ""
@@ -153,8 +187,7 @@ systemctl enable wg-quick@warp &>/dev/null || error_exit "Не удалось н
 ok "Автозапуск включен."
 echo ""
 
-cp /etc/resolv.conf.backup /etc/resolv.conf
-ok "DNS возвращены к заводскому состоянию"
+restore_dns
 ok "Установка и настройка Cloudflare WARP завершены!"
 echo ""
 echo -e "\e[1;36m➤ Проверить статус службы: \e[0msystemctl status wg-quick@warp"
