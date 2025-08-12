@@ -6,8 +6,6 @@
  </picture>
 </a></p>
 
-# Warp Native
-
 **🇺🇸 [English version](./README.md)**
 
 Этот скрипт устанавливает Cloudflare WARP в "нативном" режиме через `WireGuard`, как интерфейс, без использования `warp-cli`.
@@ -31,7 +29,7 @@
 Установка на каждую нужную ноду:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/distillium/warp-native/main/install.sh | bash
+bash <(curl -fsSL https://raw.githubusercontent.com/distillium/warp-native/main/install.sh)
 ```
 
 ### Вариант 2: Ansible роль (рекомендуется для автоматизации)
@@ -115,7 +113,7 @@ ansible-galaxy install themelbine.warp_native
 
 ### Метод через shell-скрипт:
 ```bash
-curl -sL https://raw.githubusercontent.com/distillium/warp-native/main/uninstall.sh | bash
+bash <(curl -fsSL https://raw.githubusercontent.com/distillium/warp-native/main/uninstall.sh)
 ```
 
 ### Метод через Ansible:
