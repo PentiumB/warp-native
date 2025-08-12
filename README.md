@@ -2,33 +2,64 @@
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="./media/logo.png" />
    <source media="(prefers-color-scheme: light)" srcset="./media/logo-black.png" />
-   <img alt="Warp Native" src="https://github.com/distillium/warp-native" />
+   <img alt="Warp Native" src="./media/logo.png" />
  </picture>
 </a></p>
 
-Этот скрипт устанавливает Cloudflare WARP в "нативном" режиме через `WireGuard`, как интерфейс, без использования `warp-cli`.
+# Warp Native
 
-⚠️ Поддерживаются только системы на базе **Debian/Ubuntu**.
+**🇷🇺 [Русская версия](./README_ru.md)**
 
-Он автоматизирует:
-- Установку необходимых пакетов
-- Скачивание и настройку `wgcf`
-- Проверку наличия ipv6 в системе
-- Генерацию и модификацию WireGuard-конфигурации
-- Подключение и проверку статуса
-- Включение автозапуска интерфейса `warp`
+This script installs Cloudflare WARP in "native" mode via `WireGuard` as an interface, without using `warp-cli`.
+
+⚠️ Only **Debian/Ubuntu** based systems are supported.
+
+It automates:
+- Installation of required packages
+- Download and configuration of `wgcf`
+- IPv6 availability check in the system
+- Generation and modification of WireGuard configuration
+- Connection and status verification
+- Enable auto-start of `warp` interface
 
 ---
 
-## Установка (производится на каждую нужную ноду):
+## 🚀 Installation Methods
+
+### Option 1: Shell Script (Quick Install)
+
+Install on each required node:
 
 ```bash
 curl -sL https://raw.githubusercontent.com/distillium/warp-native/main/install.sh | bash
 ```
 
-## Шаблоны для конфигурации Xray
+### Option 2: Ansible Role (Recommended for automation)
+
+For managing multiple servers, use the Ansible role:
+
+**Install from Ansible Galaxy:**
+```bash
+ansible-galaxy install themelbine.warp_native
+```
+
+**GitHub Repository:** [ansible-role-warp-native](https://github.com/TheMelbine/ansible-role-warp-native)
+
+**Example playbook:**
+```yaml
+- hosts: warp_servers
+  become: yes
+  roles:
+    - themelbine.warp_native
+  vars:
+    warp_native_state: present
+    warp_native_modify_resolv: true
+```
+
+## Xray Configuration Templates
+
 <details>
-  <summary>📝 Показать пример outbound</summary>
+  <summary>📝 Show outbound example</summary>
 
 ```json
 {
@@ -48,7 +79,7 @@ curl -sL https://raw.githubusercontent.com/distillium/warp-native/main/install.s
 </details>
 
 <details>
-  <summary>📝 Показать пример routing rule</summary>
+  <summary>📝 Show routing rule example</summary>
 
 ```json
 {
@@ -68,20 +99,43 @@ curl -sL https://raw.githubusercontent.com/distillium/warp-native/main/install.s
 ```
 </details>
 
-## Управление интерфейсом WARP
+## WARP Interface Management
 
-| Операция                    | Команда                             |
-|----------------------------|--------------------------------------|
-| Проверить статус службы     | `systemctl status wg-quick@warp`     |
-| Посмотреть информацию (wg) | `wg show warp`                       |
-| Остановить интерфейс        | `systemctl stop wg-quick@warp`       |
-| Запустить интерфейс         | `systemctl start wg-quick@warp`      |
-| Перезапустить интерфейс     | `systemctl restart wg-quick@warp`    |
-| Отключить автозапуск        | `systemctl disable wg-quick@warp`    |
-| Включить автозапуск         | `systemctl enable wg-quick@warp`     |
+| Operation                    | Command                             |
+|------------------------------|-------------------------------------|
+| Check service status         | `systemctl status wg-quick@warp`    |
+| Show information (wg)        | `wg show warp`                      |
+| Stop interface               | `systemctl stop wg-quick@warp`      |
+| Start interface              | `systemctl start wg-quick@warp`     |
+| Restart interface            | `systemctl restart wg-quick@warp`   |
+| Disable auto-start           | `systemctl disable wg-quick@warp`   |
+| Enable auto-start            | `systemctl enable wg-quick@warp`    |
 
+## Uninstall
 
-## Удаление:
+### Shell Script Method:
 ```bash
 curl -sL https://raw.githubusercontent.com/distillium/warp-native/main/uninstall.sh | bash
 ```
+
+### Ansible Method:
+```yaml
+- hosts: warp_servers
+  become: yes
+  roles:
+    - themelbine.warp_native
+  vars:
+    warp_native_state: absent
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Author
+
+Created by [distillium](https://github.com/distillium)
+
+## Language Support
+
+The installation script supports interactive language selection. During installation, you'll be prompted to choose between English and Russian.
